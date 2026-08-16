@@ -5,8 +5,18 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/sarkar-icon.png",
+    "splash": {
+      "image": "./assets/sarkar-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#05030B"
+    },
     "android": {
-      "package": "com.sarkar.search"
+      "package": "com.sarkar.search",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/sarkar-icon.png",
+        "backgroundColor": "#05030B"
+      }
     }
   }
 }
