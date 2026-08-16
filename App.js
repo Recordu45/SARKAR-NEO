@@ -1,1243 +1,881 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,
-  Pressable,
-  ScrollView,
+  TouchableOpacity,
   StyleSheet,
+  SafeAreaView,
   StatusBar,
-  KeyboardAvoidingView,
-  Platform,
-  Image
+  Animated,
+  ScrollView,
+  Dimensions,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
-const PURPLE = "#C84CFF";
-const PINK = "#FF4DDE";
-const BG = "#05030B";
-const CARD = "#100B19";
-
-const trending = [
-  ["Artificial Intelligence", "Technology"],
-  ["SpaceX Starship Launch", "Science"],
-  ["Quantum Computing", "Technology"],
-  ["Black Hole", "Science"]
-];
+const { width } = Dimensions.get("window");
 
 export default function App() {
   const [query, setQuery] = useState("");
-  const [active, setActive] = useState("Home");
+  const [activeTab, setActiveTab] = useState("All");
   const [history, setHistory] = useState([]);
 
-  const suggestions = useMemo(() => {
-    if (!query.trim()) return [];
+  const pulse = useRef(new Animated.Value(1)).current;
+  const rotate = useRef(new Animated.Value(0)).current;
+  const glow = useRef(new Animated.Value(0.35)).current;
 
-    return [
-      `${query} news`,
-      `${query} latest`,
-      `what is ${query}`
-    ];
-  }, [query]);
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1.08,
+          duration: 1400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1400,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
 
-  const runSearch = (value = query) => {
-    const q = value.trim();
+    Animated.loop(
+      Animated.timing(rotate, {
+        toValue: 1,
+        duration: 9000,
+        useNativeDriver: true,
+      })
+    ).start();
 
-    if (!q) return;
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glow, {
+          toValue: 0.8,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glow, {
+          toValue: 0.3,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
-    setHistory((old) =>
-      [q, ...old.filter((x) => x !== q)].slice(0, 20)
-    );
+  const rotation = rotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
 
-    setQuery(q);
-    setActive("Search");
+  const performSearch = () => {
+    const text = query.trim();
+
+    if (!text) return;
+
+    setHistory((old) => [
+      text,
+      ...old.filter((item) => item !== text),
+    ]);
+
+    setQuery("");
   };
+
+  const tabs = ["All", "Web", "News", "Images", "Videos", "Books"];
+
+  const trending = [
+    {
+      icon: "sparkles-outline",
+      title: "Artificial Intelligence",
+      subtitle: "Explore the latest AI information",
+    },
+    {
+      icon: "globe-outline",
+      title: "Technology",
+      subtitle: "Discover what's happening worldwide",
+    },
+    {
+      icon: "newspaper-outline",
+      title: "Latest News",
+      subtitle: "Stay updated with current events",
+    },
+  ];
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor={BG}
+        backgroundColor="#050309"
       />
 
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={
-          Platform.OS === "ios"
-            ? "padding"
-            : undefined
-        }
-      >
+      <View style={styles.container}>
+
+        {/* Background glow */}
+        <Animated.View
+          style={[
+            styles.backgroundGlow,
+            {
+              opacity: glow,
+              transform: [{ scale: pulse }],
+            },
+          ]}
+        />
+
+        <Animated.View
+          style={[
+            styles.backgroundGlowTwo,
+            {
+              opacity: glow,
+              transform: [{ scale: pulse }],
+            },
+          ]}
+        />
+
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.smallBrand}>SARKAR</Text>
+            <Text style={styles.tagline}>
+              INTELLIGENT SEARCH
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.headerButton}>
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color="#fff"
+            />
+          </TouchableOpacity>
+        </View>
+
         <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
         >
 
-          {/* TOP BAR */}
-          <View style={styles.topbar}>
+          {/* Main Logo */}
+          <View style={styles.logoArea}>
+            <Text style={styles.logo}>SARKAR</Text>
+            <Text style={styles.logoSub}>
+              SEARCH • DISCOVER • KNOW
+            </Text>
+          </View>
 
-            <Pressable style={styles.iconButton}>
-              <Ionicons
-                name="menu-outline"
-                size={25}
-                color="#F4EAFE"
-              />
-            </Pressable>
+          {/* Core */}
+          <View style={styles.coreArea}>
 
-            <Image
-              source={require("./assets/sarkar-logo.jpg")}
-              style={styles.logoImage}
-              resizeMode="contain"
+            <Animated.View
+              style={[
+                styles.orbitOuter,
+                {
+                  transform: [
+                    { rotate: rotation },
+                    { scale: pulse },
+                  ],
+                },
+              ]}
+            >
+              <View style={styles.orbitDot} />
+              <View style={styles.orbitDotTwo} />
+            </Animated.View>
+
+            <Animated.View
+              style={[
+                styles.coreGlow,
+                {
+                  transform: [{ scale: pulse }],
+                },
+              ]}
             />
 
-            <Pressable style={styles.iconButton}>
+            <Animated.View
+              style={[
+                styles.core,
+                {
+                  transform: [{ scale: pulse }],
+                },
+              ]}
+            >
               <Ionicons
-                name="notifications-outline"
-                size={23}
-                color="#F4EAFE"
+                name="search"
+                size={42}
+                color="#ffffff"
               />
-
-              <View style={styles.notificationDot} />
-            </Pressable>
+              <Text style={styles.coreText}>CORE</Text>
+            </Animated.View>
 
           </View>
 
-          {/* HOME */}
-          {active === "Home" && (
-            <>
-              <View style={styles.hero}>
+          {/* Search box */}
+          <View style={styles.searchBox}>
+            <Ionicons
+              name="search-outline"
+              size={24}
+              color="#b85cff"
+            />
 
-                <LinearGradient
-                  colors={[
-                    "#2A0840",
-                    "#10051B",
-                    "#05030B"
-                  ]}
-                  style={styles.orbit}
-                >
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Ask SARKAR anything..."
+              placeholderTextColor="#81758d"
+              style={styles.input}
+              returnKeyType="search"
+              onSubmitEditing={performSearch}
+            />
 
-                  <View
-                    style={styles.orbitRingOuter}
-                  />
-
-                  <View
-                    style={styles.orbitRingMiddle}
-                  />
-
-                  <View
-                    style={styles.orbitRingInner}
-                  >
-                    <Ionicons
-                      name="search"
-                      size={62}
-                      color="#FFFFFF"
-                    />
-                  </View>
-
-                </LinearGradient>
-
-                <Text style={styles.heroTitle}>
-                  SARKAR SEARCH
-                </Text>
-
-                <Text style={styles.heroSubtitle}>
-                  Everything. Everywhere.
-                </Text>
-
-              </View>
-
-              {/* SEARCH */}
-              <SearchBox
-                query={query}
-                setQuery={setQuery}
-                onSearch={() => runSearch()}
+            <TouchableOpacity
+              style={styles.voiceButton}
+              onPress={() => {}}
+            >
+              <Ionicons
+                name="mic-outline"
+                size={23}
+                color="#fff"
               />
+            </TouchableOpacity>
+          </View>
 
-              {/* SUGGESTIONS */}
-              {suggestions.length > 0 && (
-                <View style={styles.suggestionBox}>
+          {/* Search button */}
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={performSearch}
+          >
+            <Ionicons
+              name="sparkles"
+              size={19}
+              color="#fff"
+            />
+            <Text style={styles.searchButtonText}>
+              SEARCH WITH SARKAR
+            </Text>
+          </TouchableOpacity>
 
-                  {suggestions.map((item) => (
-                    <Pressable
-                      key={item}
-                      onPress={() =>
-                        runSearch(item)
-                      }
-                      style={styles.suggestion}
-                    >
+          {/* Tabs */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabs}
+          >
+            {tabs.map((tab) => {
+              const active = activeTab === tab;
 
-                      <Ionicons
-                        name="search-outline"
-                        size={17}
-                        color="#BBA9C7"
-                      />
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  onPress={() => setActiveTab(tab)}
+                  style={[
+                    styles.tab,
+                    active && styles.activeTab,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      active && styles.activeTabText,
+                    ]}
+                  >
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
-                      <Text
-                        style={
-                          styles.suggestionText
-                        }
-                      >
-                        {item}
-                      </Text>
+          {/* Trending */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              TRENDING SEARCHES
+            </Text>
 
-                    </Pressable>
-                  ))}
+            <Ionicons
+              name="trending-up-outline"
+              size={20}
+              color="#c15cff"
+            />
+          </View>
 
-                </View>
-              )}
-
-              <CategoryRow />
-
-              <Text style={styles.sectionTitle}>
-                TRENDING SEARCHES
-              </Text>
-
-              <View style={styles.card}>
-
-                {trending.map(
-                  ([title, category], index) => (
-                    <Pressable
-                      key={title}
-                      onPress={() =>
-                        runSearch(title)
-                      }
-                      style={[
-                        styles.trendingRow,
-                        index !==
-                          trending.length - 1 &&
-                          styles.rowBorder
-                      ]}
-                    >
-
-                      <View
-                        style={styles.trendIcon}
-                      >
-                        <Ionicons
-                          name="sparkles-outline"
-                          size={17}
-                          color={PURPLE}
-                        />
-                      </View>
-
-                      <View
-                        style={styles.trendText}
-                      >
-                        <Text
-                          style={styles.trendTitle}
-                        >
-                          {title}
-                        </Text>
-
-                        <Text
-                          style={
-                            styles.trendCategory
-                          }
-                        >
-                          {category}
-                        </Text>
-                      </View>
-
-                      <Ionicons
-                        name="arrow-up-outline"
-                        size={20}
-                        color={PINK}
-                      />
-
-                    </Pressable>
-                  )
-                )}
-
+          {trending.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.trendingCard}
+              onPress={() => {
+                setQuery(item.title);
+              }}
+            >
+              <View style={styles.trendingIcon}>
+                <Ionicons
+                  name={item.icon}
+                  size={25}
+                  color="#d15cff"
+                />
               </View>
 
-              {/* FEATURES */}
-              <View style={styles.featureRow}>
+              <View style={styles.trendingText}>
+                <Text style={styles.trendingTitle}>
+                  {item.title}
+                </Text>
 
-                <Feature
-                  icon="search"
-                  text={"POWERFUL\nSEARCH"}
-                />
-
-                <Feature
-                  icon="planet-outline"
-                  text={"ALIEN\nTECHNOLOGY"}
-                />
-
-                <Feature
-                  icon="flash-outline"
-                  text={"LIGHTNING\nFAST"}
-                />
-
-                <Feature
-                  icon="lock-closed-outline"
-                  text={"PRIVATE &\nSECURE"}
-                />
-
+                <Text style={styles.trendingSubtitle}>
+                  {item.subtitle}
+                </Text>
               </View>
 
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color="#6f6577"
+              />
+            </TouchableOpacity>
+          ))}
+
+          {/* Recent searches */}
+          {history.length > 0 && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>
+                  RECENT SEARCHES
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setHistory([])}
+                >
+                  <Text style={styles.clearText}>
+                    CLEAR
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {history.slice(0, 5).map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.historyItem}
+                  onPress={() => setQuery(item)}
+                >
+                  <Ionicons
+                    name="time-outline"
+                    size={19}
+                    color="#8d7d99"
+                  />
+
+                  <Text style={styles.historyText}>
+                    {item}
+                  </Text>
+
+                  <Ionicons
+                    name="arrow-up-outline"
+                    size={18}
+                    color="#8d7d99"
+                  />
+                </TouchableOpacity>
+              ))}
             </>
           )}
 
-          {/* SEARCH SCREEN */}
-          {active === "Search" && (
-            <SearchScreen
-              query={query}
-              onBack={() => setActive("Home")}
-            />
-          )}
+          {/* Bottom info */}
+          <View style={styles.statusCard}>
+            <View style={styles.statusDot} />
 
-          {/* HISTORY */}
-          {active === "History" && (
-            <HistoryScreen
-              history={history}
-              onSelect={runSearch}
-            />
-          )}
+            <View>
+              <Text style={styles.statusTitle}>
+                SARKAR CORE ONLINE
+              </Text>
 
-          {/* PROFILE */}
-          {active === "Profile" && (
-            <ProfileScreen />
-          )}
+              <Text style={styles.statusSubtitle}>
+                Intelligent search engine ready
+              </Text>
+            </View>
+          </View>
 
         </ScrollView>
 
-        <BottomNav
-          active={active}
-          setActive={setActive}
-        />
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
 
-      </KeyboardAvoidingView>
+          <NavItem
+            icon="home"
+            label="Home"
+            active
+          />
+
+          <NavItem
+            icon="search-outline"
+            label="Search"
+          />
+
+          <TouchableOpacity style={styles.centerNav}>
+            <View style={styles.centerNavCircle}>
+              <Ionicons
+                name="sparkles"
+                size={24}
+                color="#fff"
+              />
+            </View>
+            <Text style={styles.centerNavText}>
+              Core
+            </Text>
+          </TouchableOpacity>
+
+          <NavItem
+            icon="time-outline"
+            label="History"
+          />
+
+          <NavItem
+            icon="person-outline"
+            label="Profile"
+          />
+
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
 
-
-/* SEARCH BOX */
-
-function SearchBox({
-  query,
-  setQuery,
-  onSearch
-}) {
+function NavItem({ icon, label, active }) {
   return (
-    <View style={styles.searchBox}>
-
-      <Ionicons
-        name="search-outline"
-        size={21}
-        color="#C5B4D0"
-      />
-
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        onSubmitEditing={onSearch}
-        placeholder="Search anything..."
-        placeholderTextColor="#776B82"
-        style={styles.input}
-        returnKeyType="search"
-      />
-
-      <Pressable onPress={onSearch}>
-        <Ionicons
-          name="mic-outline"
-          size={21}
-          color={PINK}
-        />
-      </Pressable>
-
-      <Pressable onPress={onSearch}>
-        <Ionicons
-          name="scan-outline"
-          size={21}
-          color="#C5B4D0"
-        />
-      </Pressable>
-
-    </View>
-  );
-}
-
-
-/* CATEGORY */
-
-function CategoryRow() {
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.categories}
-    >
-
-      {[
-        "All",
-        "Web",
-        "News",
-        "Images",
-        "Videos",
-        "Books"
-      ].map((item, i) => (
-
-        <Pressable
-          key={item}
-          style={[
-            styles.chip,
-            i === 0 &&
-              styles.chipActive
-          ]}
-        >
-
-          <Text
-            style={[
-              styles.chipText,
-              i === 0 &&
-                styles.chipTextActive
-            ]}
-          >
-            {item}
-          </Text>
-
-        </Pressable>
-
-      ))}
-
-    </ScrollView>
-  );
-}
-
-
-/* SEARCH RESULTS */
-
-function SearchScreen({
-  query,
-  onBack
-}) {
-
-  const results = [
-    [
-      "Artificial Intelligence - Wikipedia",
-      "https://en.wikipedia.org/wiki/artificial_intelligence"
-    ],
-    [
-      "What is Artificial Intelligence? - IBM",
-      "https://www.ibm.com/topics/artificial-intelligence"
-    ],
-    [
-      "Artificial Intelligence News",
-      "https://www.sciencedaily.com/news/computers_math/artificial_intelligence/"
-    ]
-  ];
-
-  return (
-    <>
-
-      <View style={styles.screenHeader}>
-
-        <Pressable
-          onPress={onBack}
-          style={styles.iconButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={23}
-            color="#F4EAFE"
-          />
-        </Pressable>
-
-        <Text style={styles.screenTitle}>
-          Search Results
-        </Text>
-
-        <Ionicons
-          name="options-outline"
-          size={22}
-          color="#F4EAFE"
-        />
-
-      </View>
-
-      <View style={styles.searchBox}>
-
-        <Ionicons
-          name="search-outline"
-          size={21}
-          color="#C5B4D0"
-        />
-
-        <Text style={styles.resultQuery}>
-          {query || "Search"}
-        </Text>
-
-        <Ionicons
-          name="mic-outline"
-          size={21}
-          color={PINK}
-        />
-
-      </View>
-
-      <CategoryRow />
-
-      {results.map(([title, url]) => (
-
-        <Pressable
-          key={title}
-          style={styles.resultCard}
-        >
-
-          <Text style={styles.resultTitle}>
-            {title}
-          </Text>
-
-          <Text style={styles.resultUrl}>
-            {url}
-          </Text>
-
-          <Text
-            style={styles.resultDescription}
-          >
-            Real search results will be
-            connected here through the SARKAR
-            backend and search provider.
-          </Text>
-
-          <Ionicons
-            name="arrow-forward-outline"
-            size={18}
-            color={PINK}
-          />
-
-        </Pressable>
-
-      ))}
-
-      <Text style={styles.sectionTitle}>
-        PEOPLE ALSO ASK
-      </Text>
-
-      {[
-        "What is AI?",
-        "How does AI work?",
-        "What are the types of AI?"
-      ].map((x) => (
-
-        <View
-          key={x}
-          style={styles.questionRow}
-        >
-
-          <Text style={styles.questionText}>
-            {x}
-          </Text>
-
-          <Ionicons
-            name="chevron-down"
-            size={18}
-            color="#A99CAF"
-          />
-
-        </View>
-
-      ))}
-
-    </>
-  );
-}
-
-
-/* HISTORY */
-
-function HistoryScreen({
-  history,
-  onSelect
-}) {
-
-  return (
-    <>
-
-      <Text style={styles.pageTitle}>
-        Search History
-      </Text>
-
-      {history.length === 0 ? (
-
-        <View style={styles.empty}>
-
-          <Ionicons
-            name="time-outline"
-            size={45}
-            color={PURPLE}
-          />
-
-          <Text style={styles.emptyTitle}>
-            No searches yet
-          </Text>
-
-          <Text style={styles.emptyText}>
-            Your recent SARKAR searches will
-            appear here.
-          </Text>
-
-        </View>
-
-      ) : (
-
-        history.map((item) => (
-
-          <Pressable
-            key={item}
-            style={styles.historyRow}
-            onPress={() =>
-              onSelect(item)
-            }
-          >
-
-            <Ionicons
-              name="time-outline"
-              size={19}
-              color="#8E7C99"
-            />
-
-            <Text style={styles.historyText}>
-              {item}
-            </Text>
-
-            <Ionicons
-              name="arrow-up-outline"
-              size={18}
-              color="#BCA9C8"
-            />
-
-          </Pressable>
-
-        ))
-
-      )}
-
-    </>
-  );
-}
-
-
-/* PROFILE */
-
-function ProfileScreen() {
-
-  return (
-    <>
-
-      <Text style={styles.pageTitle}>
-        SARKAR
-      </Text>
-
-      <View style={styles.profileCard}>
-
-        <View style={styles.avatar}>
-          <Ionicons
-            name="person"
-            size={27}
-            color="#FFFFFF"
-          />
-        </View>
-
-        <Text style={styles.profileName}>
-          SARKAR User
-        </Text>
-
-        <Text style={styles.profileSub}>
-          Search experience and preferences
-        </Text>
-
-      </View>
-
-      {[
-        "Voice Search",
-        "Bookmarks",
-        "Downloads",
-        "Settings",
-        "About SARKAR"
-      ].map((x, i) => (
-
-        <Pressable
-          key={x}
-          style={styles.menuRow}
-        >
-
-          <Ionicons
-            name={[
-              "mic-outline",
-              "bookmark-outline",
-              "download-outline",
-              "settings-outline",
-              "information-circle-outline"
-            ][i]}
-            size={21}
-            color={PINK}
-          />
-
-          <Text style={styles.menuText}>
-            {x}
-          </Text>
-
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color="#776B82"
-          />
-
-        </Pressable>
-
-      ))}
-
-    </>
-  );
-}
-
-
-/* FEATURE */
-
-function Feature({
-  icon,
-  text
-}) {
-
-  return (
-    <View style={styles.feature}>
-
+    <TouchableOpacity style={styles.navItem}>
       <Ionicons
         name={icon}
-        size={24}
-        color={PINK}
+        size={22}
+        color={active ? "#d45cff" : "#706677"}
       />
 
-      <Text style={styles.featureText}>
-        {text}
+      <Text
+        style={[
+          styles.navLabel,
+          active && styles.navLabelActive,
+        ]}
+      >
+        {label}
       </Text>
-
-    </View>
+    </TouchableOpacity>
   );
 }
-
-
-/* BOTTOM NAVIGATION */
-
-function BottomNav({
-  active,
-  setActive
-}) {
-
-  const items = [
-    ["Home", "home-outline"],
-    ["Search", "search-outline"],
-    ["Core", "planet-outline"],
-    ["History", "time-outline"],
-    ["Profile", "person-outline"]
-  ];
-
-  return (
-    <View style={styles.bottomNav}>
-
-      {items.map(([label, icon]) => {
-
-        const selected =
-          active === label;
-
-        return (
-
-          <Pressable
-            key={label}
-            onPress={() =>
-              label !== "Core" &&
-              setActive(label)
-            }
-            style={styles.navItem}
-          >
-
-            <View
-              style={[
-                styles.navIcon,
-                selected &&
-                  styles.navIconActive
-              ]}
-            >
-
-              <Ionicons
-                name={icon}
-                size={21}
-                color={
-                  selected
-                    ? "#FFFFFF"
-                    : "#766B80"
-                }
-              />
-
-            </View>
-
-            <Text
-              style={[
-                styles.navText,
-                selected &&
-                  styles.navTextActive
-              ]}
-            >
-              {label}
-            </Text>
-
-          </Pressable>
-
-        );
-      })}
-
-    </View>
-  );
-}
-
-
-/* STYLES */
 
 const styles = StyleSheet.create({
-
   safe: {
     flex: 1,
-    backgroundColor: BG
-  },
-
-  flex: {
-    flex: 1
+    backgroundColor: "#050309",
   },
 
   container: {
-    padding: 18,
-    paddingBottom: 105
+    flex: 1,
+    backgroundColor: "#050309",
   },
 
-  topbar: {
-    height: 52,
+  backgroundGlow: {
+    position: "absolute",
+    width: 330,
+    height: 330,
+    borderRadius: 200,
+    backgroundColor: "#7416a8",
+    top: 40,
+    left: width / 2 - 165,
+    opacity: 0.25,
+  },
+
+  backgroundGlowTwo: {
+    position: "absolute",
+    width: 280,
+    height: 280,
+    borderRadius: 200,
+    backgroundColor: "#d11c98",
+    bottom: 160,
+    right: -120,
+    opacity: 0.2,
+  },
+
+  header: {
+    height: 75,
+    paddingHorizontal: 22,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#17101d",
   },
 
-  logoImage: {
-    width: 120,
-    height: 42,
-    borderRadius: 10
+  smallBrand: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "900",
+    letterSpacing: 4,
   },
 
-  iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center"
+  tagline: {
+    color: "#8e7897",
+    fontSize: 8,
+    letterSpacing: 2,
+    marginTop: 3,
   },
 
-  notificationDot: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: PINK
-  },
-
-  hero: {
-    alignItems: "center",
-    paddingTop: 20,
-    paddingBottom: 18
-  },
-
-  orbit: {
-    width: 190,
-    height: 190,
-    borderRadius: 95,
+  headerButton: {
+    width: 43,
+    height: 43,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#40204d",
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden"
+    backgroundColor: "#0d0811",
   },
 
-  orbitRingOuter: {
-    position: "absolute",
-    width: 175,
-    height: 175,
-    borderRadius: 88,
-    borderWidth: 2,
-    borderColor:
-      "rgba(200,76,255,.5)"
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 130,
   },
 
-  orbitRingMiddle: {
-    position: "absolute",
-    width: 135,
-    height: 135,
-    borderRadius: 68,
-    borderWidth: 2,
-    borderColor:
-      "rgba(255,77,222,.75)"
+  logoArea: {
+    alignItems: "center",
+    marginTop: 4,
   },
 
-  orbitRingInner: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    borderWidth: 2,
-    borderColor: PURPLE,
+  logo: {
+    color: "#ffffff",
+    fontSize: 43,
+    fontWeight: "900",
+    letterSpacing: 8,
+    textShadowColor: "#c438ff",
+    textShadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    textShadowRadius: 18,
+  },
+
+  logoSub: {
+    color: "#9c83a7",
+    fontSize: 9,
+    letterSpacing: 3,
+    marginTop: 5,
+  },
+
+  coreArea: {
+    height: 235,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#170A22"
   },
 
-  heroTitle: {
-    color: "#F4C8FF",
-    fontSize: 18,
-    fontWeight: "800",
-    marginTop: 14,
-    letterSpacing: 1
+  orbitOuter: {
+    position: "absolute",
+    width: 205,
+    height: 205,
+    borderRadius: 110,
+    borderWidth: 1,
+    borderColor: "#8734a6",
+    borderStyle: "dashed",
   },
 
-  heroSubtitle: {
-    color: "#8F8199",
-    marginTop: 4
+  orbitDot: {
+    position: "absolute",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#ff4edb",
+    top: 15,
+    right: 38,
+  },
+
+  orbitDotTwo: {
+    position: "absolute",
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#9b4dff",
+    bottom: 22,
+    left: 42,
+  },
+
+  coreGlow: {
+    position: "absolute",
+    width: 145,
+    height: 145,
+    borderRadius: 80,
+    backgroundColor: "#9b24c5",
+    opacity: 0.2,
+  },
+
+  core: {
+    width: 105,
+    height: 105,
+    borderRadius: 55,
+    backgroundColor: "#12091a",
+    borderWidth: 2,
+    borderColor: "#b936dc",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#d53cff",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 22,
+    elevation: 15,
+  },
+
+  coreText: {
+    color: "#bfa8c8",
+    fontSize: 8,
+    letterSpacing: 3,
+    marginTop: 3,
   },
 
   searchBox: {
-    minHeight: 54,
-    borderRadius: 17,
+    height: 62,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#8730A7",
-    backgroundColor: "#0D0814",
+    borderColor: "#7d2ba0",
+    backgroundColor: "#0d0812",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 15,
-    gap: 10,
-    shadowColor: PURPLE,
-    shadowOpacity: 0.18,
+    paddingHorizontal: 16,
+    shadowColor: "#bd37ff",
+    shadowOpacity: 0.25,
     shadowRadius: 15,
-    elevation: 8
+    elevation: 8,
   },
 
   input: {
     flex: 1,
-    color: "#FFFFFF",
-    fontSize: 15
+    color: "#ffffff",
+    fontSize: 16,
+    marginLeft: 11,
   },
 
-  resultQuery: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 15
+  voiceButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#21102b",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  categories: {
+  searchButton: {
+    height: 52,
+    marginTop: 12,
+    borderRadius: 17,
+    backgroundColor: "#8d26b9",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 9,
-    paddingVertical: 15
+    shadowColor: "#c933ff",
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    elevation: 8,
   },
 
-  chip: {
-    paddingHorizontal: 17,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#110B18",
-    justifyContent: "center"
+  searchButtonText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 1,
   },
 
-  chipActive: {
-    backgroundColor: "#8D2BD0"
+  tabs: {
+    paddingTop: 20,
+    paddingBottom: 22,
+    gap: 9,
   },
 
-  chipText: {
-    color: "#9D90A8",
-    fontSize: 13
+  tab: {
+    paddingHorizontal: 18,
+    height: 39,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#2b1b35",
+    backgroundColor: "#0d0911",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  chipTextActive: {
-    color: "#FFFFFF",
-    fontWeight: "700"
+  activeTab: {
+    backgroundColor: "#9829c5",
+    borderColor: "#c74df2",
+    shadowColor: "#d735ff",
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+  },
+
+  tabText: {
+    color: "#8b7c92",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  activeTabText: {
+    color: "#ffffff",
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    marginBottom: 12,
   },
 
   sectionTitle: {
-    color: "#82758D",
-    fontSize: 12,
-    letterSpacing: 1.3,
-    marginTop: 10,
-    marginBottom: 10,
-    fontWeight: "700"
-  },
-
-  card: {
-    backgroundColor: CARD,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "#20142A",
-    overflow: "hidden"
-  },
-
-  trendingRow: {
-    minHeight: 70,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    gap: 12
-  },
-
-  rowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#21172A"
-  },
-
-  trendIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: "#1A0D24",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-
-  trendText: {
-    flex: 1
-  },
-
-  trendTitle: {
-    color: "#F1E9F5",
-    fontSize: 14,
-    fontWeight: "600"
-  },
-
-  trendCategory: {
-    color: "#7D7087",
+    color: "#9d8ca6",
     fontSize: 11,
-    marginTop: 4
+    fontWeight: "800",
+    letterSpacing: 2,
   },
 
-  featureRow: {
+  clearText: {
+    color: "#bd4ee3",
+    fontSize: 10,
+    fontWeight: "800",
+  },
+
+  trendingCard: {
+    minHeight: 76,
+    borderRadius: 17,
+    backgroundColor: "#0d0911",
+    borderWidth: 1,
+    borderColor: "#211529",
+    marginBottom: 10,
+    paddingHorizontal: 13,
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingTop: 22
-  },
-
-  feature: {
     alignItems: "center",
-    width: "24%"
   },
 
-  featureText: {
-    color: "#B8A9C0",
-    fontSize: 8,
-    textAlign: "center",
-    marginTop: 7,
-    lineHeight: 11
+  trendingIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 15,
+    backgroundColor: "#1c0c25",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  trendingText: {
+    flex: 1,
+    marginLeft: 13,
+  },
+
+  trendingTitle: {
+    color: "#eee7f0",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  trendingSubtitle: {
+    color: "#75697d",
+    fontSize: 11,
+    marginTop: 4,
+  },
+
+  historyItem: {
+    height: 55,
+    borderBottomWidth: 1,
+    borderBottomColor: "#19121c",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    gap: 12,
+  },
+
+  historyText: {
+    flex: 1,
+    color: "#c7bdcb",
+    fontSize: 13,
+  },
+
+  statusCard: {
+    marginTop: 25,
+    padding: 15,
+    borderRadius: 16,
+    backgroundColor: "#0b1010",
+    borderWidth: 1,
+    borderColor: "#18352d",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  statusDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: "#35e890",
+    marginRight: 12,
+  },
+
+  statusTitle: {
+    color: "#d6f7e8",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+
+  statusSubtitle: {
+    color: "#65786f",
+    fontSize: 10,
+    marginTop: 3,
   },
 
   bottomNav: {
     position: "absolute",
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
     height: 82,
-    backgroundColor: "#08050D",
+    backgroundColor: "#09060d",
     borderTopWidth: 1,
-    borderTopColor: "#21152A",
+    borderTopColor: "#211529",
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-around",
-    alignItems: "center"
+    paddingHorizontal: 7,
   },
 
   navItem: {
-    alignItems: "center",
-    width: 68
-  },
-
-    navIcon: {
-    width: 38,
-    height: 32,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-
-  navIconActive: {
-    backgroundColor: "#7722A7",
-    shadowColor: PINK,
-    shadowOpacity: 0.45,
-    shadowRadius: 12
-  },
-
-  navText: {
-    color: "#71667A",
-    fontSize: 9,
-    marginTop: 3
-  },
-
-  navTextActive: {
-    color: "#F0B7FF"
-  },
-
-  suggestionBox: {
-    backgroundColor: "#0E0914",
-    borderRadius: 14,
-    marginTop: 7,
-    borderWidth: 1,
-    borderColor: "#24172E",
-    overflow: "hidden"
-  },
-
-  suggestion: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1D1325"
-  },
-
-  suggestionText: {
-    color: "#D7CEDB",
-    flex: 1
-  },
-
-  screenHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14
-  },
-
-  screenTitle: {
-    color: "#F2E9F5",
-    fontSize: 17,
-    fontWeight: "700"
-  },
-
-  resultCard: {
-    backgroundColor: CARD,
-    borderRadius: 17,
-    padding: 16,
-    marginBottom: 11,
-    borderWidth: 1,
-    borderColor: "#21152A"
-  },
-
-  resultTitle: {
-    color: "#F2D8FF",
-    fontSize: 15,
-    fontWeight: "700"
-  },
-
-  resultUrl: {
-    color: "#A44BCA",
-    fontSize: 10,
-    marginTop: 6
-  },
-
-  resultDescription: {
-    color: "#918494",
-    fontSize: 12,
-    lineHeight: 18,
-    marginTop: 8,
-    marginBottom: 8
-  },
-
-  questionRow: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#21152A",
-    flexDirection: "row",
-    justifyContent: "space-between"
-  },
-
-  questionText: {
-    color: "#D9CEDF",
-    fontSize: 13
-  },
-
-  pageTitle: {
-    color: "#F2D8FF",
-    fontSize: 26,
-    fontWeight: "800",
-    marginTop: 15,
-    marginBottom: 20
-  },
-
-  empty: {
-    alignItems: "center",
-    paddingVertical: 80
-  },
-
-  emptyTitle: {
-    color: "#EEE5F1",
-    fontSize: 18,
-    fontWeight: "700",
-    marginTop: 15
-  },
-
-  emptyText: {
-    color: "#817487",
-    textAlign: "center",
-    marginTop: 8
-  },
-
-  historyRow: {
-    minHeight: 58,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1D1424"
-  },
-
-  historyText: {
-    color: "#D6CADB",
-    flex: 1
-  },
-
-  profileCard: {
-    backgroundColor: CARD,
-    borderWidth: 1,
-    borderColor: "#24172E",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 12
-  },
-
-  avatar: {
     width: 62,
-    height: 62,
-    borderRadius: 31,
-    backgroundColor: "#7621A5",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10
   },
 
-  profileName: {
-    color: "#F3E9F6",
-    fontSize: 17,
-    fontWeight: "700"
+  navLabel: {
+    color: "#625867",
+    fontSize: 9,
+    marginTop: 5,
   },
 
-  profileSub: {
-    color: "#83758C",
-    fontSize: 11,
-    marginTop: 5
+  navLabelActive: {
+    color: "#c94eff",
+    fontWeight: "800",
   },
 
-  menuRow: {
-    minHeight: 57,
-    flexDirection: "row",
+  centerNav: {
     alignItems: "center",
-    gap: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1D1424"
+    justifyContent: "center",
+    marginTop: -28,
   },
 
-  menuText: {
-    color: "#D5CADB",
-    flex: 1
-  }
+  centerNavCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 30,
+    backgroundColor: "#8d27b9",
+    borderWidth: 3,
+    borderColor: "#d052ff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#d33cff",
+    shadowOpacity: 0.7,
+    shadowRadius: 18,
+    elevation: 12,
+  },
 
+  centerNavText: {
+    color: "#9c8ca4",
+    fontSize: 9,
+    marginTop: 4,
+  },
 });
