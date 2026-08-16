@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  import { Image } from "react-native";
   SafeAreaView,
   View,
   Text,
