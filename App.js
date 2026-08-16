@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  import { Image } from "react-native";
   SafeAreaView,
   View,
   Text,
@@ -10,7 +9,8 @@ import {
   StyleSheet,
   StatusBar,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Image
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -75,7 +75,10 @@ export default function App() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+
+          {/* TOP BAR */}
           <View style={styles.topbar}>
+
             <Pressable style={styles.iconButton}>
               <Ionicons
                 name="menu-outline"
@@ -84,9 +87,11 @@ export default function App() {
               />
             </Pressable>
 
-            <Text style={styles.logo}>
-              SARKAR
-            </Text>
+            <Image
+              source={require("./assets/sarkar-logo.jpg")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
 
             <Pressable style={styles.iconButton}>
               <Ionicons
@@ -97,11 +102,14 @@ export default function App() {
 
               <View style={styles.notificationDot} />
             </Pressable>
+
           </View>
 
+          {/* HOME */}
           {active === "Home" && (
             <>
               <View style={styles.hero}>
+
                 <LinearGradient
                   colors={[
                     "#2A0840",
@@ -110,6 +118,7 @@ export default function App() {
                   ]}
                   style={styles.orbit}
                 >
+
                   <View
                     style={styles.orbitRingOuter}
                   />
@@ -127,6 +136,7 @@ export default function App() {
                       color="#FFFFFF"
                     />
                   </View>
+
                 </LinearGradient>
 
                 <Text style={styles.heroTitle}>
@@ -136,16 +146,20 @@ export default function App() {
                 <Text style={styles.heroSubtitle}>
                   Everything. Everywhere.
                 </Text>
+
               </View>
 
+              {/* SEARCH */}
               <SearchBox
                 query={query}
                 setQuery={setQuery}
                 onSearch={() => runSearch()}
               />
 
+              {/* SUGGESTIONS */}
               {suggestions.length > 0 && (
                 <View style={styles.suggestionBox}>
+
                   {suggestions.map((item) => (
                     <Pressable
                       key={item}
@@ -154,6 +168,7 @@ export default function App() {
                       }
                       style={styles.suggestion}
                     >
+
                       <Ionicons
                         name="search-outline"
                         size={17}
@@ -167,8 +182,10 @@ export default function App() {
                       >
                         {item}
                       </Text>
+
                     </Pressable>
                   ))}
+
                 </View>
               )}
 
@@ -179,6 +196,7 @@ export default function App() {
               </Text>
 
               <View style={styles.card}>
+
                 {trending.map(
                   ([title, category], index) => (
                     <Pressable
@@ -193,6 +211,7 @@ export default function App() {
                           styles.rowBorder
                       ]}
                     >
+
                       <View
                         style={styles.trendIcon}
                       >
@@ -226,12 +245,16 @@ export default function App() {
                         size={20}
                         color={PINK}
                       />
+
                     </Pressable>
                   )
                 )}
+
               </View>
 
+              {/* FEATURES */}
               <View style={styles.featureRow}>
+
                 <Feature
                   icon="search"
                   text={"POWERFUL\nSEARCH"}
@@ -251,10 +274,13 @@ export default function App() {
                   icon="lock-closed-outline"
                   text={"PRIVATE &\nSECURE"}
                 />
+
               </View>
+
             </>
           )}
 
+          {/* SEARCH SCREEN */}
           {active === "Search" && (
             <SearchScreen
               query={query}
@@ -262,6 +288,7 @@ export default function App() {
             />
           )}
 
+          {/* HISTORY */}
           {active === "History" && (
             <HistoryScreen
               history={history}
@@ -269,19 +296,25 @@ export default function App() {
             />
           )}
 
+          {/* PROFILE */}
           {active === "Profile" && (
             <ProfileScreen />
           )}
+
         </ScrollView>
 
         <BottomNav
           active={active}
           setActive={setActive}
         />
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+
+/* SEARCH BOX */
 
 function SearchBox({
   query,
@@ -290,6 +323,7 @@ function SearchBox({
 }) {
   return (
     <View style={styles.searchBox}>
+
       <Ionicons
         name="search-outline"
         size={21}
@@ -321,9 +355,13 @@ function SearchBox({
           color="#C5B4D0"
         />
       </Pressable>
+
     </View>
   );
 }
+
+
+/* CATEGORY */
 
 function CategoryRow() {
   return (
@@ -332,6 +370,7 @@ function CategoryRow() {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.categories}
     >
+
       {[
         "All",
         "Web",
@@ -340,13 +379,16 @@ function CategoryRow() {
         "Videos",
         "Books"
       ].map((item, i) => (
+
         <Pressable
           key={item}
           style={[
             styles.chip,
-            i === 0 && styles.chipActive
+            i === 0 &&
+              styles.chipActive
           ]}
         >
+
           <Text
             style={[
               styles.chipText,
@@ -356,34 +398,43 @@ function CategoryRow() {
           >
             {item}
           </Text>
+
         </Pressable>
+
       ))}
+
     </ScrollView>
   );
 }
+
+
+/* SEARCH RESULTS */
 
 function SearchScreen({
   query,
   onBack
 }) {
+
   const results = [
     [
       "Artificial Intelligence - Wikipedia",
-      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+      "https://en.wikipedia.org/wiki/artificial_intelligence"
     ],
     [
       "What is Artificial Intelligence? - IBM",
       "https://www.ibm.com/topics/artificial-intelligence"
     ],
     [
-      "Artificial Intelligence News - ScienceDaily",
+      "Artificial Intelligence News",
       "https://www.sciencedaily.com/news/computers_math/artificial_intelligence/"
     ]
   ];
 
   return (
     <>
+
       <View style={styles.screenHeader}>
+
         <Pressable
           onPress={onBack}
           style={styles.iconButton}
@@ -404,9 +455,11 @@ function SearchScreen({
           size={22}
           color="#F4EAFE"
         />
+
       </View>
 
       <View style={styles.searchBox}>
+
         <Ionicons
           name="search-outline"
           size={21}
@@ -422,15 +475,18 @@ function SearchScreen({
           size={21}
           color={PINK}
         />
+
       </View>
 
       <CategoryRow />
 
       {results.map(([title, url]) => (
+
         <Pressable
           key={title}
           style={styles.resultCard}
         >
+
           <Text style={styles.resultTitle}>
             {title}
           </Text>
@@ -452,7 +508,9 @@ function SearchScreen({
             size={18}
             color={PINK}
           />
+
         </Pressable>
+
       ))}
 
       <Text style={styles.sectionTitle}>
@@ -464,10 +522,12 @@ function SearchScreen({
         "How does AI work?",
         "What are the types of AI?"
       ].map((x) => (
+
         <View
           key={x}
           style={styles.questionRow}
         >
+
           <Text style={styles.questionText}>
             {x}
           </Text>
@@ -477,24 +537,34 @@ function SearchScreen({
             size={18}
             color="#A99CAF"
           />
+
         </View>
+
       ))}
+
     </>
   );
 }
+
+
+/* HISTORY */
 
 function HistoryScreen({
   history,
   onSelect
 }) {
+
   return (
     <>
+
       <Text style={styles.pageTitle}>
         Search History
       </Text>
 
       {history.length === 0 ? (
+
         <View style={styles.empty}>
+
           <Ionicons
             name="time-outline"
             size={45}
@@ -509,14 +579,21 @@ function HistoryScreen({
             Your recent SARKAR searches will
             appear here.
           </Text>
+
         </View>
+
       ) : (
+
         history.map((item) => (
+
           <Pressable
             key={item}
             style={styles.historyRow}
-            onPress={() => onSelect(item)}
+            onPress={() =>
+              onSelect(item)
+            }
           >
+
             <Ionicons
               name="time-outline"
               size={19}
@@ -532,21 +609,31 @@ function HistoryScreen({
               size={18}
               color="#BCA9C8"
             />
+
           </Pressable>
+
         ))
+
       )}
+
     </>
   );
 }
 
+
+/* PROFILE */
+
 function ProfileScreen() {
+
   return (
     <>
+
       <Text style={styles.pageTitle}>
         SARKAR
       </Text>
 
       <View style={styles.profileCard}>
+
         <View style={styles.avatar}>
           <Ionicons
             name="person"
@@ -562,6 +649,7 @@ function ProfileScreen() {
         <Text style={styles.profileSub}>
           Search experience and preferences
         </Text>
+
       </View>
 
       {[
@@ -571,10 +659,12 @@ function ProfileScreen() {
         "Settings",
         "About SARKAR"
       ].map((x, i) => (
+
         <Pressable
           key={x}
           style={styles.menuRow}
         >
+
           <Ionicons
             name={[
               "mic-outline",
@@ -596,18 +686,26 @@ function ProfileScreen() {
             size={18}
             color="#776B82"
           />
+
         </Pressable>
+
       ))}
+
     </>
   );
 }
+
+
+/* FEATURE */
 
 function Feature({
   icon,
   text
 }) {
+
   return (
     <View style={styles.feature}>
+
       <Ionicons
         name={icon}
         size={24}
@@ -617,14 +715,19 @@ function Feature({
       <Text style={styles.featureText}>
         {text}
       </Text>
+
     </View>
   );
 }
+
+
+/* BOTTOM NAVIGATION */
 
 function BottomNav({
   active,
   setActive
 }) {
+
   const items = [
     ["Home", "home-outline"],
     ["Search", "search-outline"],
@@ -635,11 +738,14 @@ function BottomNav({
 
   return (
     <View style={styles.bottomNav}>
+
       {items.map(([label, icon]) => {
+
         const selected =
           active === label;
 
         return (
+
           <Pressable
             key={label}
             onPress={() =>
@@ -648,6 +754,7 @@ function BottomNav({
             }
             style={styles.navItem}
           >
+
             <View
               style={[
                 styles.navIcon,
@@ -655,6 +762,7 @@ function BottomNav({
                   styles.navIconActive
               ]}
             >
+
               <Ionicons
                 name={icon}
                 size={21}
@@ -664,6 +772,7 @@ function BottomNav({
                     : "#766B80"
                 }
               />
+
             </View>
 
             <Text
@@ -675,14 +784,21 @@ function BottomNav({
             >
               {label}
             </Text>
+
           </Pressable>
+
         );
       })}
+
     </View>
   );
 }
 
+
+/* STYLES */
+
 const styles = StyleSheet.create({
+
   safe: {
     flex: 1,
     backgroundColor: BG
@@ -704,11 +820,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
 
-  logo: {
-    color: "#F4C8FF",
-    fontSize: 27,
-    fontWeight: "900",
-    letterSpacing: 2
+  logoImage: {
+    width: 120,
+    height: 42,
+    borderRadius: 10
   },
 
   iconButton: {
@@ -750,7 +865,8 @@ const styles = StyleSheet.create({
     height: 175,
     borderRadius: 88,
     borderWidth: 2,
-    borderColor: "rgba(200,76,255,.5)"
+    borderColor:
+      "rgba(200,76,255,.5)"
   },
 
   orbitRingMiddle: {
@@ -759,7 +875,8 @@ const styles = StyleSheet.create({
     height: 135,
     borderRadius: 68,
     borderWidth: 2,
-    borderColor: "rgba(255,77,222,.75)"
+    borderColor:
+      "rgba(255,77,222,.75)"
   },
 
   orbitRingInner: {
@@ -934,7 +1051,7 @@ const styles = StyleSheet.create({
     width: 68
   },
 
-  navIcon: {
+    navIcon: {
     width: 38,
     height: 32,
     borderRadius: 13,
@@ -1122,4 +1239,5 @@ const styles = StyleSheet.create({
     color: "#D5CADB",
     flex: 1
   }
+
 });
