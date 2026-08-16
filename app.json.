@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "SARKAR",
+    "slug": "sarkar-search",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.sarkar.search"
+    }
+  }
+}
